@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+import os,sys,colorama,subprocess,getpass,threading,requests,json
+from time import sleep
+from pathlib import Path
+from colorama import Style,Fore
+
+BASE_URL="https://notes.wisdomriderr.shop/api/web/"
+
+def colored(color, s):
+    return Style.BRIGHT + color + s + Style.RESET_ALL
+
+taskFinished=False
+
+
+
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = '\r')
+    # Print New Line on Complete
+    if iteration == total: 
+        print()
+
+def parseCommands():
+    print(len(sys.argv))
+
+def first():
+    global taskFinished
+    if os.path.isfile(str(Path.home())+"/.wsession"):
+        parseCommands()
+    else :
+        print(colored(Fore.RED,"        You are not Logged in !"))
+        username=input(colored(Fore.GREEN,"Enter your username")+" -> ")
+        password=getpass.getpass(colored(Fore.RED,"Enter your password")+" -> ")
+        loadThread=threading.Thread(target=loading)
+        loadThread.start()
+        login=requests.post(BASE_URL+"login",data={'username':username,'password':password})
+        taskFinished=True
+        sleep(0.2)
+        if login.status_code==406 :
+            print(colored(Fore.RED,"Username/Password not matched . Do you want to retry (Y/N)"))
+            first() if input().lower()=="y" else ()
+
+        else:
+            cont=json.loads(login.content)
+            f=open(str(Path.home())+"/.wsession","w")
+            f.write(cont["data"]["key"])
+            f.close()
+
+
+        
+
+
+
+def loading(pre="Loading:"):
+    global taskFinished
+    items = list(range(0, 57))
+    l = len(items)
+    printProgressBar(0, l, prefix = pre, suffix = 'Complete', length = 50)
+    for i, item in enumerate(items):
+        if not taskFinished:
+            sleep(0.2)
+        printProgressBar(i + 1, l, prefix = pre, suffix = 'Complete', length = 50)
+
+
+
+first()
