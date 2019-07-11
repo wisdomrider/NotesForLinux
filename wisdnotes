@@ -5,6 +5,8 @@ from pathlib import Path
 from colorama import Style,Fore
 
 BASE_URL="https://notes.wisdomriderr.shop/api/web/"
+args=sys.argv
+
 
 def colored(color, s):
     return Style.BRIGHT + color + s + Style.RESET_ALL
@@ -23,7 +25,16 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
         print()
 
 def parseCommands():
-    print(len(sys.argv))
+    global taskFinished
+    if len(args)==2 and args[1]=="list":
+        listThread=threading.Thread(target=loading)
+        listThread.start()
+        list=requests.get(BASE_URL+"notes",headers={'authorization': "Bearer " + os.popen("cat ~/.wsession").read()[:-1]})
+        taskFinished=True
+        sleep(0.2)
+        print(list.content)
+    
+    
 
 def first():
     global taskFinished
@@ -47,6 +58,9 @@ def first():
             f=open(str(Path.home())+"/.wsession","w")
             f.write(cont["data"]["key"])
             f.close()
+            if len(args)>1 :
+                first()
+
 
 
         
@@ -62,6 +76,7 @@ def loading(pre="Loading:"):
         if not taskFinished:
             sleep(0.2)
         printProgressBar(i + 1, l, prefix = pre, suffix = 'Complete', length = 50)
+    taskFinished=False    
 
 
 
