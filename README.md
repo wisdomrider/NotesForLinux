@@ -4,6 +4,6 @@
 # How to Install ?
   ## Clone this repo 
   ## Then ./install.sh and you are good to go .
- ## NOW TYPE wisdnote and <tab> for options
+ ## NOW TYPE wisdnote to get started.
  
  # For Queries : avishekzone@gmail.com
