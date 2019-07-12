@@ -4,8 +4,8 @@ from time import sleep
 from pathlib import Path
 from colorama import Style,Fore
 
-#BASE_URL="https://notes.wisdomriderr.shop/api/web/"
-BASE_URL="http://localhost:3000/api/web/"
+BASE_URL="https://notes.wisdomriderr.shop/api/web/"
+#BASE_URL="http://localhost:3000/api/web/"
 args=sys.argv
 title="Loading : "
 lists=[]
@@ -60,6 +60,8 @@ def parseCommands():
             tag=input("Enter tag to delete -> ")
             showList(search(tag),edit=True)
             deleteOperation(thread)
+        else:
+            help()
     elif len(args)==4 and args[1]=="add":
        addNote(args[2],args[3],thread)
     elif len(args)==3 and args[1]=="search":
@@ -70,6 +72,8 @@ def parseCommands():
     elif len(args)==3 and args[1]=="delete":
         showList(search(args[2]),edit=True)
         deleteOperation(thread)
+    else:
+        help()
 
 def deleteOperation(thread):
     global lists,title,taskFinished
@@ -203,5 +207,11 @@ def loading():
          print("\r")
          loading()
     taskFinished=False 
+
+def help():
+    print("Welcome to WisdNotes !")
+    print("Usage : wisdnotes [add <title> <desc>] [list] [add] [edit <searchQuery>] [edit] [delete <searchQuery>] [search <searchQuery>]"
+    +" [relogin] [help] \n \n Examples : \n 1. wisdnote relogin [to relogin]\n2. wisdnote add tabletPassword nepal"+
+        "\n3. wisdnote list [fetch all list]\n4. wisdnote search tabletPassword")
 
 first()
