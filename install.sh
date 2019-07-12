@@ -4,4 +4,5 @@ pip3 install colorama
 pip3 install requests
 clear
 sudo mv wisdnote /usr/bin/
+complete -W "add edit list delete relogin help search" wisdnote
 echo Succesfully Installed !
