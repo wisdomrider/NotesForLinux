@@ -29,6 +29,16 @@ def checkForAuth(x):
         print("Session is expired. Please relogin.") 
         sys.exit(0)
 
+def filterSecrets(list):
+    filteredList=[]
+    for x in list["data"]:
+        if "secret" in x["title"] or "password" in x["title"]:
+            x["desc"]="".join(["*" for x in range(len(x["desc"]))])
+            filteredList.append(x);
+        else :
+            filteredList.append(x);
+    return {"data":filteredList};
+
 
 def parseCommands():
     thread=threading.Thread(target=loading)
@@ -42,8 +52,9 @@ def parseCommands():
             taskFinished=True
             sleep(0.2)
             checkForAuth(list)
-            showList(list.json())
-        elif args[1]=="relogin":
+            list=filterSecrets(list.json())
+            showList(list)
+        elif args[1]=="login":
             first(True)
         elif args[1]=="add":
             t=input("Enter title of note -> ")
@@ -56,7 +67,7 @@ def parseCommands():
         elif args[1]=="search":
             tag=input("Enter tag to search -> ")
             showList(search(tag))
-        elif args[1]=="search":
+        elif args[1]=="delete":
             tag=input("Enter tag to delete -> ")
             showList(search(tag),edit=True)
             deleteOperation(thread)
@@ -101,6 +112,7 @@ def search(tag):
     search=requests.post(BASE_URL+"search/"+tag,
     headers={'authorization': "Bearer " + os.popen("cat ~/.wsession").read()[:-1]})
     checkForAuth(search)
+    os.system("sudo -v") if "secret" in str(search.json()) or "password" in str(search.json()) else ()
     return search.json()        
 
 
@@ -170,7 +182,11 @@ def LongInput(name):
 
 def first(rL=False):
     global taskFinished,title
-    if os.path.isfile(str(Path.home())+"/.wsession") and not rL:
+    if len(args)==2 and args[1]=="login" and not rL:
+        parseCommands()
+    elif len(args)==2 and args[1]=="update" and not rL:
+        os.system("xdg-open https://github.com/wisdomrider/NotesForLinux")
+    elif os.path.isfile(str(Path.home())+"/.wsession") and not rL:
         parseCommands()
     else :
         if not rL:
@@ -214,7 +230,9 @@ def loading():
 def help():
     print("Welcome to WisdNotes !")
     print("Usage : wisdnotes [add <title> <desc>] [list] [add] [edit <searchQuery>] [edit] [delete <searchQuery>] [search <searchQuery>]"
-    +" [relogin] [help] \n \n Examples : \n 1. wisdnote relogin [to relogin]\n2. wisdnote add tabletPassword nepal"+
-        "\n3. wisdnote list [fetch all list]\n4. wisdnote search tabletPassword")
+    +" [login] [help] \n \n Examples : \n 1. wisdnote login [to login]\n 2. wisdnote add tabletPassword nepal"+
+        "\n 3. wisdnote list [fetch all list]\n 4. wisdnote search tabletPassword\n\nNote : Passwords,Secrets are not shown in lists if you want to see your"
+            +" password then search it and sudo permission will be asked for that.\n If you add password,secret keyword in title then it will be encrypted automatically."
+            )
 
 first()
